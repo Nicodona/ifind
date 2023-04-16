@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Found, Register
+from .models import Found, Register,Job, Report, Message
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 
@@ -12,6 +12,29 @@ class RegisterSerializer(serializers.ModelSerializer):
 class FoundSerializer(serializers.ModelSerializer):
     class Meta:
         model = Found
+        fields = '__all__'
+class FoundSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Found
+        fields = '__all__'
+
+
+class JobSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Job
+        fields = '__all__'
+
+class ReportSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Report
+        fields = '__all__'
+
+class MessageSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Message
         fields = '__all__'
 
 class UserSerializer(serializers.ModelSerializer):
