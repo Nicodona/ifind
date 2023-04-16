@@ -26,6 +26,6 @@ urlpatterns = [
 
     #auth
     path('user/', views.UserCreate.as_view(), name='user'),
-    path('login/', views.LoginView.as_view(), name='login')
+    path('login/', views.LoginView.as_view(), name='login'),
 
 ]
