@@ -1,12 +1,17 @@
 from django.urls import path
 from . import views
+from rest_framework.routers import DefaultRouter
+from .views import MessageViewSet
+
+router = DefaultRouter()
+router.register('message', MessageViewSet, basename='message')
 
 urlpatterns = [
     #get routes
     path('', views.FoundItems.as_view(), name='found'),
     path('job/', views.JobItems.as_view(), name='job'),
     path('report/', views.Reports.as_view(), name='report'),
-    path('messages/', views.Messages.as_view(), name='report'),
+    # path('messages/', views.Messages.as_view(), name='report'),
 
     #detail routes
     path("register/<int:pk>/", views.User_data.as_view(), name='detail_register '),
@@ -20,7 +25,7 @@ urlpatterns = [
     path('found/', views.CreateItem.as_view(), name='founditem'),
     path('add_job/', views.CreateJob.as_view(), name='add_job'),
     path('add_register/', views.CreateProfile.as_view(), name='register'),
-    path('add_message/', views.CreateMessage.as_view(), name='message'),
+#    path('add_message/', views.CreateMessage.as_view(), name='message'),
     path('add_report/', views.CreateReport.as_view(), name='register'),
 
 
@@ -29,3 +34,5 @@ urlpatterns = [
     path('login/', views.LoginView.as_view(), name='login'),
 
 ]
+
+urlpatterns += router.urls

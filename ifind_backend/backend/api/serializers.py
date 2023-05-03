@@ -2,13 +2,16 @@ from rest_framework import serializers
 from .models import Found, Register,Job, Report, Message
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
-
+import pytesseract
+from PIL import Image
+from copy import deepcopy
 
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Register
         fields = '__all__'
 
+
 class FoundSerializer(serializers.ModelSerializer):
     class Meta:
         model = Found
@@ -16,7 +19,16 @@ class FoundSerializer(serializers.ModelSerializer):
 class FoundSerializer(serializers.ModelSerializer):
     class Meta:
         model = Found
-        fields = '__all__'
+        fields = ['author', 'image']
+
+
+
+    # def create(self, validated_data):
+    #     image = deepcopy(validated_data.get("image"))
+    #     print(image)
+    #     description = pytesseract.image_to_string(validated_data['image'])
+    #     print(description)
+    #     return Found.objects.create(description=description, **validated_data)
 
 
 class JobSerializer(serializers.ModelSerializer):

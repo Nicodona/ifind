@@ -16,9 +16,11 @@ import base64
 import pytesseract
 from PIL import Image
 import io
+from copy import deepcopy
 
 from django.contrib.auth.models import User
 from rest_framework.views import APIView
+from rest_framework import viewsets
 
 #detail logics
 
@@ -62,13 +64,25 @@ class JobItems(APIView):
         return Response(data)
 
 
-class Messages(APIView):
-    permission_classes = [IsAuthenticated]
+# class Messages(APIView):
+#     permission_classes = [IsAuthenticated]
+#
+#     def get(self, request):
+#         items = Message.objects.all()[:20]
+#         data = MessageSerializer(items, many=True).data
+#         return Response(data)
 
-    def get(self, request):
-        items = Message.objects.all()[:20]
-        data = MessageSerializer(items, many=True).data
-        return Response(data)
+class MessageViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    queryset = Message.objects.all()
+    serializer_class = MessageSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        message = Message.objects.get(pk=self.kwargs["pk"])
+
+        if not message.author == request.user or message.reciever == request.user:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        return super().destroy(self, *args, **kwargs)
 
 
 class Reports(APIView):
@@ -103,22 +117,22 @@ class CreateJob(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CreateMessage(APIView):
-    permission_classes = [IsAuthenticated]
-    def post(self, request):
-        author = request.user.id
-        message = request.data.get('message')
-
-        data = {'author': author, 'message': message}
-
-        serializer = MessageSerializer(data=data)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            print(serializer.errors)
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+# class CreateMessage(APIView):
+#     permission_classes = [IsAuthenticated]
+#     def post(self, request):
+#         author = request.user.id
+#         message = request.data.get('message')
+#
+#         data = {'author': author, 'message': message}
+#
+#         serializer = MessageSerializer(data=data)
+#
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_200_OK)
+#         else:
+#             print(serializer.errors)
+#             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class CreateReport(APIView):
@@ -162,33 +176,36 @@ class CreateItem(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
     def post(self, request, format=None):
-        author = request.data.get('author')
+        author = request.user.id
         img = request.data.get('image')
+        #
+        # image = deepcopy(img)
+
         # try:
-        #     # image = request.FILES['image']
-        #     # image = base64.b64encode(image)
-        #     # image = base64.b64decode(image)
-        #     # image = Image.open(io.BytesIO(image_bytes))
-        #     im = Image.open(img)
+        # image = request.FILES['image']
+        # image_bytes = base64.b64encode(img)
+        # image_bytes = base64.b64decode(img)
+        # image = Image.open(io.BytesIO(image_bytes))
+        # #     im = Image.open(image)
+        # #
+        # # except (KeyError, IOError):
+        # #    pass
         #
-        # except (KeyError, IOError):
-        #    pass
-        #
-        # #extract img with pytesseract
-        # description = pytesseract.image_to_string(img, config=r" --psm 6, --oem 3")
+        # # #extract img with pytesseract
+        # description = pytesseract.image_to_string(image, config=r" --psm 6, --oem 3")
 
         # print(description)
         data = {'author': author, 'image': img}
-        # data = {'author': author, 'image':img, 'description': description}
+     #   data = {'author': author, 'image':im, 'description': description}
         serializer = FoundSerializer(data=data)
 
         if serializer.is_valid():
             found = serializer.save()
+            print(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class UserCreate(generics.CreateAPIView):
     authentication_classes = ()

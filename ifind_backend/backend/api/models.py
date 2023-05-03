@@ -93,9 +93,10 @@ class Report(models.Model):
         return self.account
 
 class Message(models.Model):
-    author = models.ForeignKey(Found, on_delete=models.CASCADE)
+    author = models.ForeignKey(User, default=1, on_delete=models.CASCADE)
+    reciever = models.ForeignKey(Found, default=1, on_delete=models.CASCADE)
     message = models.TextField( null=True, blank=True)
     date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-       return self.message[:10]
+       return f' message from {self.author} to {self.reciever.author}'
